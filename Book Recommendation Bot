@@ -1,0 +1,33 @@
+from telegram import Update, Bot
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
+# Sample book recommendations
+books = {
+    'fantasy': ['Harry Potter by J.K. Rowling', 'The Hobbit by J.R.R. Tolkien'],
+    'science fiction': ['Dune by Frank Herbert', 'Neuromancer by William Gibson'],
+    'mystery': ['The Girl with the Dragon Tattoo by Stieg Larsson', 'Gone Girl by Gillian Flynn'],
+    'non-fiction': ['Sapiens by Yuval Noah Harari', 'Educated by Tara Westover']
+}
+
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text('Welcome to the Book Recommendation Bot! Type a genre (e.g., fantasy, science fiction, mystery, non-fiction) to get a book recommendation.')
+
+def recommend(update: Update, context: CallbackContext) -> None:
+    genre = update.message.text.lower()
+    recommendations = books.get(genre, 'Sorry, I don\'t have any recommendations for that genre.')
+    if isinstance(recommendations, list):
+        recommendations = '\n'.join(recommendations)
+    update.message.reply_text(recommendations)
+
+def main() -> None:
+    updater = Updater("YOUR_BOT_TOKEN")
+    dispatcher = updater.dispatcher
+
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, recommend))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
